@@ -1,11 +1,22 @@
+import io
 from fastapi import FastAPI, File, UploadFile
+from PIL import Image
+from transformers import pipeline
 
 app = FastAPI()
 
+classifier = pipeline("image-classification", model="dima806/deepfake_vs_real_image_detection")
+
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    is_fake = "fake" in file.filename.lower()
+    image_bytes = await file.read()
+    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    
+    results = classifier(image)
+    top_result = results[0]
+    is_fake = top_result["label"].lower() == "fake"
+    
     return {
         "isDeepfake": is_fake,
-        "confidenceScore": 0.94 if is_fake else 0.12
+        "confidenceScore": round(top_result["score"], 4)
     }
