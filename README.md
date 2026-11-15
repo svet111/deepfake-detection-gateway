@@ -17,6 +17,7 @@ This project uses two microservices running together via Docker Compose:
 1. Clone the repository and open the project folder in your terminal.
 2. Build and start both containers:
    ```bash
+   ./mvnw clean package
    docker compose up --build
    ```
 3. Open your browser and go to http://localhost:8080.
